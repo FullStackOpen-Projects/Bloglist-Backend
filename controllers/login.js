@@ -5,14 +5,16 @@ const User = require('../models/user')
 
 loginRouter.post('/', async (request, response) => {
     const body = request.body
-    
     const user = await User.findOne({username: body.username})
     if(user === null){
         return response.status(401).json({error: "Username can't be found"})
     }
-    if(!bcrypt.compare(body.password, user.passwordHash)){
+   
+    const verifyPassword = await bcrypt.compare(body.password, user.passwordHash)
+    if(verifyPassword === false){
         return response.status(401).json({error: "Password does not match"})
     }
+
     const userForToken = {
         username: user.username,
         id: user._id
